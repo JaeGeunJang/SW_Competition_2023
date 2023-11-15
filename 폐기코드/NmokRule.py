@@ -1,6 +1,6 @@
 import math
 
-bd = 3
+bd = 15
 class Nmok :
     def __init__(self, state = [[0 for rows in range(bd)]for cols in range(bd)]) :
         self.lownums = 3
@@ -18,7 +18,7 @@ class Nmok :
 
     def getResult(self, playerjm) :
         result = self.checkState()
-        assert result != 0
+        # assert result != 0
         if result == -1 :
             return 0.5
         elif result == playerjm :
@@ -33,8 +33,13 @@ class Nmok :
             moving = []
             for i in range (bd) :
                 for j in range (bd) :
-                    if self.state[i][j] == 0 :
-                        moving.append((j,i))
+                    if self.state[i][j] != 0 :
+                        axis_range = [[max(0, j-3),min(j+3, bd-1)],[max(0, i-3), min(j+3, bd-1)]]
+                        for k in range(axis_range[0][0], axis_range[0][1]) :
+                            for kk in range(axis_range[1][0], axis_range[1][1]) :
+                                if self.state[kk][k] == 0 :
+                                    moving.append((k,kk))
+            moving = list(set(moving))
         return moving
 
     def doMoves(self,move) :
@@ -129,6 +134,7 @@ class Nmok :
             for j in range (bd) :
                 if self.state[j][i] == 0 :
                     bkpoint = 0
+        print(bkpoint)
         return bkpoint
 
     def __repr__(self): #시템이 해당 객체를 이해할 수 있는 형식으로 전환해줌.
