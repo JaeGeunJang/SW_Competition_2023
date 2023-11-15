@@ -4,7 +4,7 @@ BLACK = 1
 WHITE = -1
 BANNED = -99
 EMPTY = 0
-symbols = {BLACK: '●', WHITE: '○', EMPTY: '.', BANNED: 'X'}
+symbols = {BLACK: '●', WHITE: '○', EMPTY: '+', BANNED: 'X'}
 
 def is_valid_position(bd, position) :
         return position[0] >= 0 and position[0] < bd and position[1] >= 0 and position[1] < bd
@@ -20,6 +20,8 @@ def expend_area(bd, idx):
                         xs, ys = i + x_axis * side, j + y_axis * side
                         if is_valid_position(bd, [xs, ys]):
                             area_idx[xs, ys] = True
+                
+    return np.bitwise_xor(area_idx, idx)
 
 def nested_list(lst, sublst):
     sbj_size = len(lst)
@@ -44,7 +46,7 @@ class SixMok:
         self.winner = 0
     
     def get_Move(self):
-        prev_move_idx = self.state != EMPTY
+        prev_move_idx = (self.state != EMPTY)
         area_idx = expend_area(self.bd, prev_move_idx)
         return np.column_stack(np.where(area_idx == True))
 
@@ -79,7 +81,7 @@ class SixMok:
         return not np.any(self.state == EMPTY)
 
     def check_State(self):
-        is_win, color = self.getResult()
+        is_win, color = self.get_Result()
         if self.is_full(): return True
         return is_win
     

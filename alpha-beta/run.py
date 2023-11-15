@@ -6,7 +6,7 @@ BLACK = 1
 WHITE = -1
 BANNED = -99
 EMPTY = 0
-symbols = {BLACK: '●', WHITE: '○', EMPTY: '.', BANNED: 'X'}
+symbols = {BLACK: 'O', WHITE: 'X', EMPTY: '+', BANNED: '.'}
 
 class PlayGame:
     def __init__(self, size = 19, depth = 2):
@@ -21,25 +21,27 @@ class PlayGame:
         self.ai_color = -player_idx
 
     def play(self, x_axis, y_axis):
-        position = [x_axis, y_axis]
+        position = (x_axis, y_axis)
         if self.state.color != self.ai_color:
             return False
         if not self.state.is_valid_position(position):
             return False
         self.state = self.state.doMove(position)
-        self.gg = self.state.checkState()
+        self.gg = self.state.check_State()
+        print(self.gg)
         return True
     
     def ai_play(self):
         if self.state.color == self.ai_color:
             return False, (0, 0)
-        move, _ = selectMove(self.state, self.depth, self.is_max_state)
+        move, value = selectMove(self.state, self.depth, self.is_max_state)
         self.state = self.state.doMove(move)
-        self.gg = self.state.checkState()
+        print(f"AI : [{move}], [{value}]")
+        self.gg = self.state.check_State()
 
         return True, move
     
-    def get_state(self):
+    def get_status(self):
         board = self.state.state
 
         return {
@@ -49,8 +51,16 @@ class PlayGame:
             'winner': self.state.winner
         }
 def print_board(board):
-    for row in board:
-        print(' '.join(symbols[cell] for cell in row))
+    # 상단에 열 번호 표시
+    top_row = '   ' + ' '.join('{:2}'.format(i%10) for i in range(1, len(board) + 1))
+    print(top_row)
+
+    # 각 행과 그 행의 번호 표시
+    for idx, row in enumerate(board, 1):
+        row_str = '{:2}  '.format(idx%10) + ' '.join('{:2}'.format(symbols[cell]) for cell in row)
+        print(row_str)
+
+
 
 def main():
     size = 19
@@ -58,9 +68,10 @@ def main():
     game = PlayGame(size, depth)
 
     while not game.gg:
-        print_board(game.get_state()['board'])
+        print_board(game.get_status()['board'])
         try:
             x, y = map(int, input("Enter your move(x y): ").split())
+            x, y = y-1, x-1
             success = game.play(x, y)
         except:
             continue
@@ -75,7 +86,8 @@ def main():
 
         # 게임 결과 확인
         if game.gg:
-            winner = "Player" if game.state.winner == game.ai_color else "AI"
+            winner = "Player" if game.state.winner != game.ai_color else "AI"
+            print_board(game.get_status()['board'])
             print(f"Game Over. {winner} wins.")
             break
 

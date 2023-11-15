@@ -3,11 +3,11 @@ from flask import (
     Flask,
     render_template
 )
-from game import GameRunner
+from run import PlayGame
 import json
 
 app = Flask(__name__)
-game_runner = GameRunner()
+game_runner = PlayGame()
 
 
 @app.route('/')
@@ -38,7 +38,7 @@ def play():
 
 @app.route('/aiplay')
 def aiplay():
-    status, move = game_runner.aiplay()
+    status, move = game_runner.ai_play()
     if status:
         return json.dumps(
             {

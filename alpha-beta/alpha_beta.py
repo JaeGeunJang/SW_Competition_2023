@@ -4,7 +4,7 @@ BLACK = 1
 WHITE = -1
 BANNED = -99
 EMPTY = 0
-symbols = {BLACK: '●', WHITE: '○', EMPTY: '.', BANNED: 'X'}
+symbols = {BLACK: '●', WHITE: '○', EMPTY: '+', BANNED: 'X'}
 
 def first_move(state):
     x = state.bd // 2
@@ -97,7 +97,7 @@ def evaluation_state (state, current_color):
     return evaluate_color(state, BLACK, current_color) + evaluate_color(state, WHITE, current_color)
 
 def minMax(state, alpha, beta, depth, is_max_state):
-    if depth == 0 or state.checkState():
+    if depth == 0 or state.check_State():
         return evaluation_state(state, -state.color)
     
     if is_max_state:
@@ -123,29 +123,33 @@ def get_best_moves(state, n, is_max_state):
     color = state.color
     top_moves = []
 
-    for move in state.legal_moves():
+    for move in state.get_Move():
         evaluation = evaluation_state(state.doMove(move), color)
         top_moves.append((move, evaluation))
+    # print(top_moves)
     return sorted(top_moves, key=lambda x: x[1], reverse=is_max_state)[:n]
 
 def selectMove(state, depth, is_max_state):
     values = state.state
-    best_value = is_max_state and float('-inf'), float('inf')
-    best_move = [-1, -1]
+    best_value = is_max_state and float('-inf') or float('inf')
+    best_move = (-1, -1)
     total_turn = len(values[values != EMPTY])
 
-    if not total_turn :
+    if total_turn == 0 :
         return first_move(state)
     if total_turn == 1 :
         return second_move(state)
     
     best_moves = get_best_moves(state, 10, is_max_state)
-
+    # print(best_moves)
     for moves in best_moves:
         move = moves[0]
         value = minMax(state.doMove(move), float('-inf'), float('inf'), depth - 1, not is_max_state)
+        # print("value",value)
+        # print("best_value", best_value)
         if ((is_max_state and value > best_value) or (not is_max_state and value < best_value)) :
-            best_value, best_move = value, move
+            best_value = value
+            best_move = move
 
     if best_move[0] == -1 and best_move[1] == -1 :
         return best_moves[0]
